@@ -1,0 +1,141 @@
+Great — here is a **complete SQL database schema** that includes:
+
+✔ Players
+✔ Game rounds
+✔ Moves
+✔ Scoreboard
+✔ Relations between all tables
+✔ Auto-increment primary keys
+✔ Timestamps
+
+I’ll provide **pure SQL commands**, ready to copy and run (works on MySQL, MariaDB, PostgreSQL with minor adjustments).
+
+---
+
+# ✅ Full SQL Schema for Your Tic-Tac-Toe Game
+
+---
+
+## 1️⃣ **Players Table**
+
+Stores user profiles (optional but useful if players have names).
+
+```sql
+CREATE TABLE players (
+    player_id      INT AUTO_INCREMENT PRIMARY KEY,
+    player_name    VARCHAR(50) NOT NULL,
+    avatar_url     VARCHAR(255),
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+## 2️⃣ **Game Rounds Table**
+
+Each completed Tic-Tac-Toe game round.
+
+```sql
+CREATE TABLE game_rounds (
+    round_id       INT AUTO_INCREMENT PRIMARY KEY,
+    player_x_id    INT NOT NULL,
+    player_o_id    INT NOT NULL,
+    winner         VARCHAR(1) NULL,     -- 'X', 'O', or NULL for draw
+    started_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ended_at       TIMESTAMP NULL,
+
+    FOREIGN KEY (player_x_id) REFERENCES players(player_id),
+    FOREIGN KEY (player_o_id) REFERENCES players(player_id)
+);
+```
+
+---
+
+## 3️⃣ **Moves Table**
+
+Stores every move in every game (optional but powerful for replays / analytics).
+
+```sql
+CREATE TABLE moves (
+    move_id        INT AUTO_INCREMENT PRIMARY KEY,
+    round_id       INT NOT NULL,
+    move_number    INT NOT NULL,
+    cell_index     INT NOT NULL,   -- 0 to 8
+    symbol         VARCHAR(1) NOT NULL, -- 'X' or 'O'
+    played_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (round_id) REFERENCES game_rounds(round_id)
+);
+```
+
+---
+
+## 4️⃣ **Scoreboard Table**
+
+Stores cumulative win/loss/draw totals per player.
+
+```sql
+CREATE TABLE scoreboard (
+    player_id      INT PRIMARY KEY,
+    wins           INT DEFAULT 0,
+    losses         INT DEFAULT 0,
+    draws          INT DEFAULT 0,
+
+    FOREIGN KEY (player_id) REFERENCES players(player_id)
+);
+```
+
+---
+
+## 5️⃣ **Insert Default Two Players (X and O)**
+
+If you want static players:
+
+```sql
+INSERT INTO players (player_name) VALUES ('Player X'), ('Player O');
+```
+
+---
+
+## 6️⃣ **Example: Insert a New Round**
+
+```sql
+INSERT INTO game_rounds (player_x_id, player_o_id)
+VALUES (1, 2);
+```
+
+---
+
+## 7️⃣ **Record a Move**
+
+```sql
+INSERT INTO moves (round_id, move_number, cell_index, symbol)
+VALUES (1, 1, 0, 'X');
+```
+
+---
+
+## 8️⃣ **Set Game Winner**
+
+```sql
+UPDATE game_rounds
+SET winner = 'X', ended_at = NOW()
+WHERE round_id = 1;
+```
+
+---
+
+## 9️⃣ **Update Scoreboard After a Round**
+
+If X wins:
+
+```sql
+UPDATE scoreboard SET wins = wins + 1 WHERE player_id = 1;
+UPDATE scoreboard SET losses = losses + 1 WHERE player_id = 2;
+```
+
+If it’s a draw:
+
+```sql
+UPDATE scoreboard SET draws = draws + 1 WHERE player_id IN (1, 2);
+merajulislam8882@gmail.commerajulislam8882@gmail.com
